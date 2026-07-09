@@ -1,0 +1,9 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  core:
+    uses: ./.github/workflows/_core.yml
