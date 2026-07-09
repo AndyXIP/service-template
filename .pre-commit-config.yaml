@@ -1,15 +1,17 @@
 repos:
   - repo: local
     hooks:
-      - id: lint
-        name: lint
-        entry: uv run ruff check src/
+      - id: fix
+        name: fix
+        entry: mise run fix
         language: system
         pass_filenames: false
         always_run: true
-      - id: type-check
+        stages: [pre-commit]
+      - id: typecheck
         name: type check
-        entry: uv run ty check src/
+        entry: mise run typecheck
         language: system
         pass_filenames: false
         always_run: true
+        stages: [pre-push]

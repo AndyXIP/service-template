@@ -6,4 +6,4 @@ uv = "0.11.27"
 python.uv_venv_auto = "create|source"
 
 [hooks]
-enter = "uv sync --all-groups -q && pre-commit install > /dev/null"
+enter = "uv sync --all-groups -q && pre-commit install --hook-type pre-commit --hook-type pre-push > /dev/null"
