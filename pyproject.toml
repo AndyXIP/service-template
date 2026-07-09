@@ -7,15 +7,21 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.139.0",
     "uvicorn>=0.51.0",
+    "pydantic-settings>=2.14.2",
+    "structlog>=26.1.0",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.0",
     "pre-commit>=4.6.0",
     "pytest>=9.1.1",
     "ruff>=0.15.21",
     "ty>=0.0.57",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
@@ -23,3 +29,6 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
