@@ -5,9 +5,9 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class ItemBase(BaseModel):
-    name: str
-    description: str | None = None
-    price: float = Field(gt=0)
+    name: str = Field(examples=["Widget"])
+    description: str | None = Field(default=None, examples=["A widget for demonstration purposes"])
+    price: float = Field(gt=0, examples=[9.99])
 
 
 class ItemCreate(ItemBase):
@@ -15,9 +15,9 @@ class ItemCreate(ItemBase):
 
 
 class ItemUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    price: float | None = Field(default=None, gt=0)
+    name: str | None = Field(default=None, examples=["Widget"])
+    description: str | None = Field(default=None, examples=["A widget for demonstration purposes"])
+    price: float | None = Field(default=None, gt=0, examples=[14.99])
 
 
 class ItemRead(ItemBase):

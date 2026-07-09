@@ -55,12 +55,20 @@ def configure_logging(settings: Settings) -> None:
     logging.getLogger("uvicorn.access").disabled = True
 
 
+# Paths excluded from request logging - health checks get polled every few
+# seconds by Docker/orchestrators and add pure noise to the logs.
+_UNLOGGED_PATHS = frozenset({"/utils/health"})
+
+
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Logs one structured event per request: method, path, status, duration."""
 
     async def dispatch(
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        if request.url.path in _UNLOGGED_PATHS:
+            return await call_next(request)
+
         structlog.contextvars.bind_contextvars(
             request_id=str(uuid.uuid4()),
             method=request.method,
