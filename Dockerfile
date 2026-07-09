@@ -1,8 +1,10 @@
 ARG PYTHON_VERSION
 ARG UV_VERSION
 
+FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
+
 FROM python:${PYTHON_VERSION}-slim AS build
-COPY --from=ghcr.io/astral-sh/uv:${UV_VERSION} /uv /usr/local/bin/uv
+COPY --from=uv /uv /usr/local/bin/uv
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
