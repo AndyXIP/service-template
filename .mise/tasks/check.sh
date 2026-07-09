@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Lint/Type check with ruff and ty"
+echo "Running ruff..."
+ruff check src/
+echo "Running ty..."
+ty check src/
