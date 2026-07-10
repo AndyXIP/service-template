@@ -25,6 +25,15 @@ class ItemRepository(Protocol):
 
 
 class InMemoryItemRepository:
+    """Reference implementation backed by a plain dict - not thread-safe.
+
+    API routes are `def`, not `async def`, so FastAPI runs each request in a
+    threadpool and requests can genuinely interleave. Methods like `update()`
+    do a check-then-set against `self._items` with no lock, so that isn't
+    atomic under concurrent writes. Fine for examples/tests; swap in a real
+    backend (see `ItemRepository`) before relying on this under load.
+    """
+
     def __init__(self) -> None:
         self._items: dict[UUID, Item] = {}
 

@@ -35,12 +35,18 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestLoggingMiddleware)
 
     if settings.cors_origins:
+        # allow_credentials=True means the browser will send cookies/auth headers
+        # on cross-origin requests from these origins. Keep allow_methods and
+        # allow_headers scoped to what this service actually needs - copying
+        # "*" wildcards here alongside allow_credentials is a common footgun
+        # once real auth is wired in. Widen only if a specific method/header
+        # is genuinely required.
         app.add_middleware(
             CORSMiddleware,
             allow_origins=settings.cors_origins,
             allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+            allow_methods=["GET", "POST", "PATCH", "DELETE"],
+            allow_headers=["Authorization", "Content-Type"],
         )
 
     app.include_router(health.router)
