@@ -49,6 +49,10 @@ production-flavored and untouched by the example.
 - **Consistent error handling** — validation errors, domain "not found"
   errors, and unhandled exceptions all resolve to the same JSON envelope
   shape, with no internals leaked on 500s.
+- **Stubbed auth wiring** — a `Depends`-based bearer-token dependency
+  (`src/core/auth.py`) shows how to require authentication on a route and
+  get a 401 envelope on failure. It does not verify tokens — see
+  [Development Notes](#development-notes).
 - **Full example CRUD resource** — `items`, with proper HTTP status codes
   (201/200/204/404/422) to copy from.
 - **Real test suite** — unit tests per layer plus integration tests through
@@ -81,8 +85,9 @@ production-flavored and untouched by the example.
       schemas (pydantic request/response models)
 ```
 
-`core/` (`config`, `logging`, `errors`) is cross-cutting infrastructure used
-by every layer above, not part of the request-flow chain itself.
+`core/` (`config`, `logging`, `errors`, `auth`) is cross-cutting
+infrastructure used by every layer above, not part of the request-flow
+chain itself.
 
 ---
 
@@ -110,7 +115,8 @@ service-template/
 │   ├── core/
 │   │   ├── config.py            # pydantic-settings Settings
 │   │   ├── logging.py            # structlog config + request-logging middleware
-│   │   └── errors.py              # exception handlers, JSON error envelope
+│   │   ├── errors.py              # exception handlers, JSON error envelope
+│   │   └── auth.py                 # stubbed bearer-token auth dependency
 │   ├── domain/                     # entities + domain exceptions (framework-agnostic)
 │   ├── schemas/                      # pydantic request/response DTOs (API boundary)
 │   ├── repositories/                   # storage abstraction (in-memory here)
@@ -171,21 +177,22 @@ fields have defaults, so `.env` is optional.
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/utils/health` | Liveness check (used by Docker `HEALTHCHECK` and CI) |
-| `POST` | `/items` | Create an item — 201 |
+| `POST` | `/items` | Create an item (requires bearer token) — 201 |
 | `GET` | `/items` | List items |
 | `GET` | `/items/{id}` | Get one item — 404 if missing |
-| `PATCH` | `/items/{id}` | Partially update an item — 404 if missing |
-| `DELETE` | `/items/{id}` | Delete an item — 204 |
+| `PATCH` | `/items/{id}` | Partially update an item (requires bearer token) — 404 if missing |
+| `DELETE` | `/items/{id}` | Delete an item (requires bearer token) — 204 |
 
 ```bash
 curl -X POST localhost:8000/items \
   -H 'content-type: application/json' \
+  -H 'authorization: Bearer test-token' \
   -d '{"name": "Widget", "description": "A widget", "price": 9.99}'
 
 curl localhost:8000/items
 curl localhost:8000/items/<id>
-curl -X PATCH localhost:8000/items/<id> -d '{"price": 14.99}'
-curl -X DELETE localhost:8000/items/<id>
+curl -X PATCH localhost:8000/items/<id> -H 'authorization: Bearer test-token' -d '{"price": 14.99}'
+curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
 ```
 
 ---
@@ -199,8 +206,17 @@ curl -X DELETE localhost:8000/items/<id>
   (`src/repositories/item.py`) implements the `ItemRepository` protocol.
   Replace it with a real implementation and nothing above the repository
   layer needs to change.
-- **Error envelope**: every error response — validation, not-found, or
+- **Error envelope**: every error response — validation, not-found, auth, or
   unhandled — has the shape `{"error": {"type", "message", "details"}}`.
+- **Auth is a stub, not real security**: `get_current_principal`
+  (`src/core/auth.py`) only checks that a bearer token is present - it does
+  not verify a signature, expiry, or issuer, and accepts any non-empty
+  token. It exists to show the wiring pattern (`Depends(get_current_principal)`
+  on a route, a 401 envelope on failure) so every service doesn't reinvent
+  it independently. Replace `_authenticate` with real verification (JWT
+  signature/expiry check, an introspection call to your identity provider,
+  etc.) before relying on it. The example `items` writes (`POST`/`PATCH`/
+  `DELETE`) require it; reads don't - adjust the split to your service's needs.
 - **CI pipeline**: pushes and PRs run `mise run check` (lint + typecheck),
   `mise run test`, and `mise run build` (Docker build + health-check smoke
   test) via GitHub Actions.
@@ -219,7 +235,9 @@ Things intentionally left out of the template — add them once your service
 actually needs them:
 
 - A real persistence layer (swap `InMemoryItemRepository` for a SQL/Mongo-backed one)
-- Authentication/authorization
+- Real auth: replace the stub in `src/core/auth.py` with actual token
+  verification (JWT signature/expiry check, an identity provider
+  integration, etc.) and, if needed, authorization (roles/scopes)
 - Pagination on list endpoints
 - Rate limiting
 - Metrics/tracing
