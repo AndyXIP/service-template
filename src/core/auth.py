@@ -14,17 +14,18 @@ from dataclasses import dataclass
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from domain.errors import AppError
+
 # auto_error=False so a missing header raises our own AuthenticationError
 # (and gets the standard error envelope) instead of FastAPI's default
 # 403 "Not authenticated" response.
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
-class AuthenticationError(Exception):
+class AuthenticationError(AppError):
     """Raised when a request is missing or carries an invalid bearer token."""
 
     def __init__(self, message: str = "Missing or invalid authentication token") -> None:
-        self.message = message
         super().__init__(message)
 
 
