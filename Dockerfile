@@ -1,23 +1,22 @@
-ARG PYTHON_VERSION
-ARG UV_VERSION
+ARG PYTHON_VERSION=3.13.14
+ARG UV_VERSION=0.11.27
 
 FROM ghcr.io/astral-sh/uv:${UV_VERSION} AS uv
 
-FROM python:${PYTHON_VERSION}-slim AS build
+FROM python:${PYTHON_VERSION}-alpine AS build
 COPY --from=uv /uv /usr/local/bin/uv
 
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev
 
-FROM python:${PYTHON_VERSION}-slim AS final
-RUN useradd --create-home app
+FROM python:${PYTHON_VERSION}-alpine AS final
+RUN adduser -D app
 WORKDIR /app
 
-COPY --from=build /app/.venv ./.venv
-COPY src/ ./src/
+COPY --from=build --chown=app:app /app/.venv ./.venv
+COPY --chown=app:app src/ ./src/
 
-RUN chown -R app:app /app
 USER app
 
 EXPOSE 8000
