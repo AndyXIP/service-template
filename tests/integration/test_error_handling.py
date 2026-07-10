@@ -9,8 +9,10 @@ class _BrokenRepository:
         raise RuntimeError("boom")
 
 
-def test_post_invalid_body_returns_422_envelope(client: TestClient) -> None:
-    response = client.post("/items", json={"name": "Widget", "price": -1})
+def test_post_invalid_body_returns_422_envelope(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    response = client.post("/items", json={"name": "Widget", "price": -1}, headers=auth_headers)
 
     assert response.status_code == 422
     body = response.json()
