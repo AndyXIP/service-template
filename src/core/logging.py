@@ -19,6 +19,7 @@ def configure_logging(settings: Settings) -> None:
         structlog.contextvars.merge_contextvars,
         structlog.stdlib.add_log_level,
         structlog.stdlib.add_logger_name,
+        structlog.stdlib.ExtraAdder(),
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
@@ -31,11 +32,19 @@ def configure_logging(settings: Settings) -> None:
         cache_logger_on_first_use=True,
     )
 
+    # Local dev gets a human-friendly console renderer; every other
+    # environment gets JSON so log aggregators can parse it.
+    renderer: structlog.typing.Processor = (
+        structlog.dev.ConsoleRenderer()
+        if settings.environment == "local"
+        else structlog.processors.JSONRenderer()
+    )
+
     formatter = structlog.stdlib.ProcessorFormatter(
         foreign_pre_chain=shared_processors,
         processors=[
             structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-            structlog.processors.JSONRenderer(),
+            renderer,
         ],
     )
     handler = logging.StreamHandler()
