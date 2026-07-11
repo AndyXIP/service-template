@@ -76,13 +76,13 @@ production-flavored and untouched by the example.
              │  HTTP
              ▼
 ┌───────────────────────────┐
-│  api/routes                │  thin controllers: parse schema, call service
+│  api/routes               │  thin controllers: parse schema, call service
 ├───────────────────────────┤
-│  services                  │  business logic, orchestrates repositories
+│  services                 │  business logic, orchestrates repositories
 ├───────────────────────────┤
-│  repositories               │  storage abstraction (in-memory for this template)
+│  repositories             │  storage abstraction (in-memory for this template)
 ├───────────────────────────┤
-│  domain                      │  entities + domain exceptions, framework-agnostic
+│  domain                   │  entities + domain exceptions, framework-agnostic
 └───────────────────────────┘
              ▲
              │  DTOs at the boundary only
@@ -117,34 +117,34 @@ each layer's responsibilities.
 ```
 service-template/
 ├── .github/
-│   ├── workflows/            # CI: lint+typecheck, test, Trivy scan, build+smoke test; deploy.yml is wired but a no-op
-│   ├── actions/mise-install/ # composite action: install mise + toolchain, uv sync --frozen
-│   ├── ISSUE_TEMPLATE/       # bug report + feature request forms
+│   ├── workflows/             # CI: lint+typecheck+test+build+smoke test (deploy.yml wired, no-op)
+│   ├── actions/mise-install/  # composite action: install mise + toolchain, uv sync
+│   ├── ISSUE_TEMPLATE/        # bug report + feature request forms
 │   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── CODEOWNERS            # placeholder — replace before enabling required reviews
-│   └── SECURITY.md           # placeholder — how to report a vulnerability
-├── .claude/settings.json     # Claude Code permissions allowlist (project-shared, not personal)
+│   ├── CODEOWNERS             # placeholder — replace before enabling required reviews
+│   └── SECURITY.md            # placeholder — how to report a vulnerability
+├── .claude/settings.json      # Claude Code permissions allowlist (project-shared, not personal)
 ├── .mise/
-│   ├── config.toml           # pinned Python/uv versions, `enter` hook (uv sync + pre-commit install)
-│   └── tasks/                # dev, check, fix, test, test-unit, typecheck, build
-├── docs/                     # detail linked from CLAUDE.md: architecture, commands, testing, ci, security
+│   ├── config.toml            # pinned Python/uv versions, `enter` hook (uv sync + pre-commit install)
+│   └── tasks/                 # dev, check, fix, test, test-unit, typecheck, build
+├── docs/                      # detail linked from CLAUDE.md: architecture, commands, testing, ci, security
 ├── src/
 │   ├── main.py                # app factory + lifespan
 │   ├── core/
-│   │   ├── config.py            # pydantic-settings Settings
-│   │   ├── logging.py            # structlog config + request-logging middleware
-│   │   ├── errors.py              # exception handlers, JSON error envelope
-│   │   └── auth.py                 # stubbed bearer-token auth dependency
-│   ├── domain/                     # entities + domain exceptions (framework-agnostic)
-│   ├── schemas/                      # pydantic request/response DTOs (API boundary)
-│   ├── repositories/                   # storage abstraction (in-memory here)
-│   ├── services/                         # business logic, orchestrates repositories
-│   └── api/routes/                         # FastAPI routers
+│   │   ├── config.py          # pydantic-settings Settings
+│   │   ├── logging.py         # structlog config + request-logging middleware
+│   │   ├── errors.py          # exception handlers, JSON error envelope
+│   │   └── auth.py            # stubbed bearer-token auth dependency
+│   ├── domain/                # entities + domain exceptions (framework-agnostic)
+│   ├── schemas/               # pydantic request/response DTOs (API boundary)
+│   ├── repositories/          # storage abstraction (in-memory here)
+│   ├── services/              # business logic, orchestrates repositories
+│   └── api/routes/            # FastAPI routers
 ├── tests/
-│   ├── unit/                # fast, isolated per-layer tests
-│   └── integration/          # full HTTP stack via TestClient
-├── CLAUDE.md                 # guidance for Claude Code / agents (short, links into docs/)
-├── .env.example              # documents Settings fields
+│   ├── unit/                  # fast, isolated per-layer tests
+│   └── integration/           # full HTTP stack via TestClient
+├── CLAUDE.md                  # guidance for Claude Code / agents (short, links into docs/)
+├── .env.example               # documents Settings fields
 ├── Dockerfile                 # multi-stage, non-root, HEALTHCHECK
 ├── .pre-commit-config.yaml
 ├── pyproject.toml
@@ -242,8 +242,8 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
   vulnerability reporting instead.
 
 ```bash
-mise run test        # full suite (tests/unit + tests/integration)
-mise run test-unit   # fast unit-only subset
+mise run test         # full suite (tests/unit + tests/integration)
+mise run test-unit    # fast unit-only subset
 mise run check        # ruff + ty
 ```
 
