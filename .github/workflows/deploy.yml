@@ -1,0 +1,41 @@
+name: deploy
+
+on:
+  workflow_call:      # invoked by ci.yml after `core` passes on push to main -> auto-deploys to dev
+  workflow_dispatch:  # manual "Run workflow" in the Actions tab -> deploys to production
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-dev:
+    name: Deploy (dev)
+    if: github.event_name == 'workflow_call'
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Deploy
+        run: |
+          echo "No deploy target configured yet."
+          echo "Replace this step with your actual deploy, e.g.:"
+          echo "  - AWS:     aws-actions/configure-aws-credentials + ecs/eks/apprunner deploy"
+          echo "  - GCP:     google-github-actions/auth + gcloud run deploy"
+          echo "  - Fly.io / Render / Railway: their respective deploy actions"
+          echo "If you need OIDC federated auth (AWS/GCP), add 'id-token: write' to this workflow's permissions."
+
+  deploy-prod:
+    name: Deploy (production)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - name: Deploy
+        run: |
+          echo "No deploy target configured yet."
+          echo "Same pattern as dev, pointed at production infra/credentials."
+          echo "Consider adding required reviewers on the 'production' Environment"
+          echo "(Settings > Environments > production) to gate this manual run."
