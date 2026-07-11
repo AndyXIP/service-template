@@ -155,11 +155,7 @@ service-template/
 
 ## Getting Started
 
-**Prerequisite:** [mise](https://mise.jdx.dev/)
-
-```bash
-brew install mise
-```
+**Prerequisite:** [mise](https://mise.jdx.dev/) — see its site for install instructions for your platform.
 
 `cd` into the repo — mise's `enter` hook auto-runs `uv sync` and installs the
 pre-commit hooks. Then:
