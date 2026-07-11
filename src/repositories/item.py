@@ -6,7 +6,7 @@ from starlette.requests import Request
 from domain.item import Item, ItemNotFoundError
 
 
-class ItemRepository(Protocol):
+class ItemRepository(Protocol):  # pragma: no cover
     """Storage abstraction for `Item` entities.
 
     Swap `InMemoryItemRepository` for a SQL/Mongo-backed implementation
