@@ -115,12 +115,14 @@ service-template/
 ├── .github/
 │   ├── workflows/            # CI: lint+typecheck, test, build+smoke test; deploy.yml is wired but a no-op
 │   ├── actions/mise-install/ # composite action: install mise + toolchain, uv sync --frozen
-│   └── PULL_REQUEST_TEMPLATE.md
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── CODEOWNERS            # placeholder — replace before enabling required reviews
+│   └── SECURITY.md           # placeholder — how to report a vulnerability
 ├── .claude/settings.json     # Claude Code permissions allowlist (project-shared, not personal)
 ├── .mise/
 │   ├── config.toml           # pinned Python/uv versions, `enter` hook (uv sync + pre-commit install)
 │   └── tasks/                # dev, check, fix, test, test-unit, typecheck, build
-├── docs/                     # detail linked from CLAUDE.md: architecture, commands, testing, ci
+├── docs/                     # detail linked from CLAUDE.md: architecture, commands, testing, ci, security
 ├── src/
 │   ├── main.py                # app factory + lifespan
 │   ├── core/
@@ -220,15 +222,9 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
   layer needs to change.
 - **Error envelope**: every error response — validation, not-found, auth, or
   unhandled — has the shape `{"error": {"type", "message", "details"}}`.
-- **Auth is a stub, not real security**: `get_current_principal`
-  (`src/core/auth.py`) only checks that a bearer token is present - it does
-  not verify a signature, expiry, or issuer, and accepts any non-empty
-  token. It exists to show the wiring pattern (`Depends(get_current_principal)`
-  on a route, a 401 envelope on failure) so every service doesn't reinvent
-  it independently. Replace `_authenticate` with real verification (JWT
-  signature/expiry check, an introspection call to your identity provider,
-  etc.) before relying on it. The example `items` writes (`POST`/`PATCH`/
-  `DELETE`) require it; reads don't - adjust the split to your service's needs.
+- **Auth is a stub, not real security**: see [docs/security.md](docs/security.md)
+  for what's stubbed in `src/core/auth.py`, CORS configuration, and what to
+  replace before relying on either.
 - **CI pipeline**: pushes and PRs run `mise run check` (lint + typecheck),
   `mise run test`, and `mise run build` (Docker build + health-check smoke
   test) via GitHub Actions — see [docs/ci.md](docs/ci.md) for the full breakdown.
@@ -236,6 +232,9 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
   stub — GitHub can't auto-populate this from template metadata, so replace it
   with real owners and enable "Require review from Code Owners" in branch
   protection settings before it does anything.
+- **SECURITY.md is a placeholder**: `.github/SECURITY.md` has a stub contact
+  email — replace it with a real address, or switch to GitHub's private
+  vulnerability reporting instead.
 
 ```bash
 mise run test        # full suite (tests/unit + tests/integration)
