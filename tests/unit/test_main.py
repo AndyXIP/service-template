@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -13,7 +15,16 @@ def _clear_settings_cache() -> None:
     get_settings.cache_clear()
 
 
-def test_lifespan_logs_startup_and_shutdown(capsys: pytest.CaptureFixture[str]) -> None:
+def test_lifespan_logs_startup_and_shutdown(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # Non-"local" environment gets the JSONRenderer (see configure_logging),
+    # so log lines are parseable JSON - and non-default values prove these
+    # settings were actually threaded into the log call, rather than
+    # coincidentally matching Settings' own defaults.
+    monkeypatch.setenv("APP_NAME", "lifespan-test-service")
+    monkeypatch.setenv("ENVIRONMENT", "staging")
+
     # configure_logging() points the root logger's handler at stderr, so
     # caplog (which relies on its own handler) never sees these records -
     # capsys, which reads the real stream, does.
@@ -21,9 +32,13 @@ def test_lifespan_logs_startup_and_shutdown(capsys: pytest.CaptureFixture[str]) 
         response = client.get("/utils/health")
 
     assert response.status_code == 200
-    stderr = capsys.readouterr().err
-    assert "starting_up" in stderr
-    assert "shutting_down" in stderr
+    events = [json.loads(line) for line in capsys.readouterr().err.splitlines()]
+
+    startup = next(e for e in events if e["event"] == "starting_up")
+    assert startup["app_name"] == "lifespan-test-service"
+    assert startup["environment"] == "staging"
+
+    assert any(e["event"] == "shutting_down" for e in events)
 
 
 def test_cors_origins_configured_adds_cors_middleware(monkeypatch: pytest.MonkeyPatch) -> None:
