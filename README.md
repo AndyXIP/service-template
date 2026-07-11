@@ -89,6 +89,9 @@ production-flavored and untouched by the example.
 infrastructure used by every layer above, not part of the request-flow
 chain itself.
 
+See [docs/architecture.md](docs/architecture.md) for a deeper breakdown of
+each layer's responsibilities.
+
 ---
 
 ## Tech Stack
@@ -109,7 +112,15 @@ chain itself.
 
 ```
 service-template/
-├── .github/workflows/       # CI: lint+typecheck, test, build+smoke test
+├── .github/
+│   ├── workflows/            # CI: lint+typecheck, test, build+smoke test; deploy.yml is an unwired placeholder
+│   ├── actions/mise-install/ # composite action: install mise + toolchain, uv sync --frozen
+│   └── PULL_REQUEST_TEMPLATE.md
+├── .claude/settings.json     # Claude Code permissions allowlist (project-shared, not personal)
+├── .mise/
+│   ├── config.toml           # pinned Python/uv versions, `enter` hook (uv sync + pre-commit install)
+│   └── tasks/                # dev, check, fix, test, test-unit, typecheck, build
+├── docs/                     # detail linked from CLAUDE.md: architecture, commands, testing, ci
 ├── src/
 │   ├── main.py                # app factory + lifespan
 │   ├── core/
@@ -125,6 +136,7 @@ service-template/
 ├── tests/
 │   ├── unit/                # fast, isolated per-layer tests
 │   └── integration/          # full HTTP stack via TestClient
+├── CLAUDE.md                 # guidance for Claude Code / agents (short, links into docs/)
 ├── .env.example              # documents Settings fields
 ├── Dockerfile                 # multi-stage, non-root, HEALTHCHECK
 ├── .pre-commit-config.yaml
@@ -219,7 +231,7 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
   `DELETE`) require it; reads don't - adjust the split to your service's needs.
 - **CI pipeline**: pushes and PRs run `mise run check` (lint + typecheck),
   `mise run test`, and `mise run build` (Docker build + health-check smoke
-  test) via GitHub Actions.
+  test) via GitHub Actions — see [docs/ci.md](docs/ci.md) for the full breakdown.
 
 ```bash
 mise run test        # full suite (tests/unit + tests/integration)
@@ -242,7 +254,8 @@ actually needs them:
 - Rate limiting
 - Metrics/tracing
 - A readiness endpoint (only meaningful once there's a real dependency, like a DB, to check)
-- `deploy.yml` — currently a stub
+- `deploy.yml` — currently an unwired placeholder (see the file's comments for the pattern to fill in)
+- Dependabot (or Renovate) to keep dependencies and pinned Actions/tool versions current
 
 ---
 
