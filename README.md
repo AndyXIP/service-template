@@ -232,6 +232,10 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
 - **CI pipeline**: pushes and PRs run `mise run check` (lint + typecheck),
   `mise run test`, and `mise run build` (Docker build + health-check smoke
   test) via GitHub Actions — see [docs/ci.md](docs/ci.md) for the full breakdown.
+- **CODEOWNERS is a placeholder**: `.github/CODEOWNERS` has a `@your-org/your-team`
+  stub — GitHub can't auto-populate this from template metadata, so replace it
+  with real owners and enable "Require review from Code Owners" in branch
+  protection settings before it does anything.
 
 ```bash
 mise run test        # full suite (tests/unit + tests/integration)
