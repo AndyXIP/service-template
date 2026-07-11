@@ -255,7 +255,7 @@ actually needs them:
 - Metrics/tracing
 - A readiness endpoint (only meaningful once there's a real dependency, like a DB, to check)
 - A real deploy step — `deploy.yml` is already wired up (auto-deploys to a
-  `dev` Environment after CI passes on `main`; `production` deploys via a
+  `development` Environment after CI passes on `main`; `production` deploys via a
   manual `workflow_dispatch` run) but both `Deploy` steps are no-op placeholders
 - Dependabot (or Renovate) to keep dependencies and pinned Actions/tool versions current
 

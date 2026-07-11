@@ -14,3 +14,5 @@ jobs:
   deploy:
     needs: core
     uses: ./.github/workflows/deploy.yml
+    with:
+      environment: development

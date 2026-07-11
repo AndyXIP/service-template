@@ -9,15 +9,21 @@ and `mise run build` followed by a smoke test (`docker run` + curl
 to `main` and only after `core` passes. `pr.yml` does not call it, so PRs
 never trigger a deploy attempt.
 
-`deploy.yml` has two jobs, split by how the workflow was triggered:
+`deploy.yml` is a single reusable job parameterized by an `environment`
+input, rather than one job per target:
 
-- `deploy-dev` runs when called via `workflow_call` (i.e. automatically, from
-  `ci.yml` after `core` passes) and targets the `dev` GitHub Environment.
-- `deploy-prod` runs only on a manual `workflow_dispatch` ("Run workflow" in
-  the Actions tab) and targets the `production` Environment.
+- Auto path: `ci.yml` calls it via `workflow_call` with
+  `environment: development`, so every push to `main` that passes `core`
+  deploys to the `development` GitHub Environment automatically.
+- Manual path: `workflow_dispatch` ("Run workflow" in the Actions tab) offers
+  only `production` as a choice, so prod deploys always require an explicit
+  manual trigger — there's no automatic path to `production`.
 
-Both jobs' `Deploy` steps are currently `echo` placeholders — the
-trigger/gating and Environment wiring are real and don't need touching, only
-the `run:` blocks need replacing with actual deploy commands once there's a
-real target. Consider adding required reviewers on the `production`
-Environment (repo Settings > Environments) to gate manual prod deploys.
+The job's `environment: name: ${{ inputs.environment }}` picks up whichever
+value came in, so the same steps run against either target. The `Deploy`
+step is currently an `echo` placeholder — the trigger/gating and Environment
+wiring are real and don't need touching, only the `run:` block needs
+replacing with an actual deploy command once there's a real target (it can
+branch on `inputs.environment` if dev/prod need different commands).
+Consider adding required reviewers on the `production` Environment (repo
+Settings > Environments) to gate manual prod deploys.
