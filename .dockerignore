@@ -13,3 +13,5 @@ Dockerfile
 .gitignore
 .python-version
 .pre-commit-config.yaml
+*.local
+*.local.*
