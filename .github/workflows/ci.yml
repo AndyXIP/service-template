@@ -10,3 +10,7 @@ permissions:
 jobs:
   core:
     uses: ./.github/workflows/_core.yml
+
+  deploy:
+    needs: core
+    uses: ./.github/workflows/deploy.yml

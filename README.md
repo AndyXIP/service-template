@@ -113,7 +113,7 @@ each layer's responsibilities.
 ```
 service-template/
 ├── .github/
-│   ├── workflows/            # CI: lint+typecheck, test, build+smoke test; deploy.yml is an unwired placeholder
+│   ├── workflows/            # CI: lint+typecheck, test, build+smoke test; deploy.yml is wired but a no-op
 │   ├── actions/mise-install/ # composite action: install mise + toolchain, uv sync --frozen
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── .claude/settings.json     # Claude Code permissions allowlist (project-shared, not personal)
@@ -254,7 +254,7 @@ actually needs them:
 - Rate limiting
 - Metrics/tracing
 - A readiness endpoint (only meaningful once there's a real dependency, like a DB, to check)
-- `deploy.yml` — currently an unwired placeholder (see the file's comments for the pattern to fill in)
+- A real deploy step — `deploy.yml` is already wired up (runs on push to `main`, gated on CI passing) but its `Deploy` step is a no-op placeholder
 - Dependabot (or Renovate) to keep dependencies and pinned Actions/tool versions current
 
 ---
