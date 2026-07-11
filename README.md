@@ -155,11 +155,7 @@ service-template/
 
 ## Getting Started
 
-**Prerequisite:** [mise](https://mise.jdx.dev/)
-
-```bash
-brew install mise
-```
+**Prerequisite:** [mise](https://mise.jdx.dev/) — see its site for install instructions for your platform.
 
 `cd` into the repo — mise's `enter` hook auto-runs `uv sync` and installs the
 pre-commit hooks. Then:
@@ -233,6 +229,9 @@ curl -X DELETE localhost:8000/items/<id> -H 'authorization: Bearer test-token'
 - **CI pipeline**: pushes and PRs run `mise run check` (lint + typecheck),
   `mise run test`, and `mise run build` (Docker build + health-check smoke
   test) via GitHub Actions — see [docs/ci.md](docs/ci.md) for the full breakdown.
+- **Port is runtime-configurable**: the container listens on `$PORT` if set,
+  else `8000` — works unmodified whether a platform injects its own port
+  (Railway, Render) or expects a fixed one (AWS ECS/Fargate).
 - **CODEOWNERS is a placeholder**: `.github/CODEOWNERS` has a `@your-org/your-team`
   stub — GitHub can't auto-populate this from template metadata, so replace it
   with real owners and enable "Require review from Code Owners" in branch
