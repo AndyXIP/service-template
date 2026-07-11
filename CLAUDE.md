@@ -37,3 +37,10 @@ fixture details and coverage requirements.
 
 Push and PR both run lint/typecheck, tests, and a Docker build + smoke test.
 See [docs/ci.md](docs/ci.md) for the workflow breakdown and `deploy.yml`'s status.
+
+## Security
+
+Auth (`src/core/auth.py`) is a stub — presence-only bearer token check, no
+signature/expiry verification. CORS is opt-in via `CORS_ORIGINS`. See
+[docs/security.md](docs/security.md) for what's stubbed, what to replace
+before relying on it, and CORS footguns to avoid.
