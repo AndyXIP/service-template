@@ -17,7 +17,10 @@ input, rather than one job per target:
   deploys to the `development` GitHub Environment automatically.
 - Manual path: `workflow_dispatch` ("Run workflow" in the Actions tab) offers
   only `production` as a choice, so prod deploys always require an explicit
-  manual trigger — there's no automatic path to `production`.
+  manual trigger — there's no automatic path to `production`. The `deploy`
+  job's `if` guards this path to `github.ref == 'refs/heads/main'`, so a
+  manual dispatch against any other branch is skipped — prod can only ever
+  deploy what's on `main`.
 
 The job's `environment: name: ${{ inputs.environment }}` picks up whichever
 value came in, so the same steps run against either target. The `Deploy`
