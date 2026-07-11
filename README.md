@@ -45,7 +45,9 @@ production-flavored and untouched by the example.
   validated at startup.
 - **Structured JSON logging** — `structlog`, with uvicorn's own logs routed
   through the same formatter and one log line per request (method, path,
-  status, duration). Health-check polling is excluded from request logs.
+  status, duration). Health-check polling is excluded from request logs. Each
+  request gets a UUID `request_id`, bound into that log line and echoed back
+  as an `X-Request-ID` response header for client/log correlation.
 - **Consistent error handling** — validation errors, domain "not found"
   errors, and unhandled exceptions all resolve to the same JSON envelope
   shape, with no internals leaked on 500s.
@@ -59,7 +61,9 @@ production-flavored and untouched by the example.
   the full HTTP stack.
 - **Production-flavored Docker/CI** — multi-stage build, non-root user,
   `HEALTHCHECK`, and a GitHub Actions pipeline that lints, type-checks,
-  tests, and smoke-tests the built image.
+  tests, Trivy-scans, and smoke-tests the built image.
+- **Secret scanning** — [gitleaks](https://github.com/gitleaks/gitleaks) runs
+  as a pre-commit hook, catching hardcoded credentials before they're committed.
 
 ---
 
@@ -113,8 +117,9 @@ each layer's responsibilities.
 ```
 service-template/
 ├── .github/
-│   ├── workflows/            # CI: lint+typecheck, test, build+smoke test; deploy.yml is wired but a no-op
+│   ├── workflows/            # CI: lint+typecheck, test, Trivy scan, build+smoke test; deploy.yml is wired but a no-op
 │   ├── actions/mise-install/ # composite action: install mise + toolchain, uv sync --frozen
+│   ├── ISSUE_TEMPLATE/       # bug report + feature request forms
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   ├── CODEOWNERS            # placeholder — replace before enabling required reviews
 │   └── SECURITY.md           # placeholder — how to report a vulnerability
