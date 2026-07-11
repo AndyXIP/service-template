@@ -78,8 +78,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         if request.url.path in _UNLOGGED_PATHS:
             return await call_next(request)
 
+        request_id = str(uuid.uuid4())
         structlog.contextvars.bind_contextvars(
-            request_id=str(uuid.uuid4()),
+            request_id=request_id,
             method=request.method,
             path=request.url.path,
         )
@@ -90,6 +91,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         finally:
             structlog.contextvars.clear_contextvars()
 
+        response.headers["X-Request-ID"] = request_id
         duration_ms = round((time.perf_counter() - start) * 1000, 2)
         logger.info("request_completed", status_code=response.status_code, duration_ms=duration_ms)
         return response

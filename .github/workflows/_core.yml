@@ -31,6 +31,15 @@ jobs:
       - uses: ./.github/actions/mise-install
       - run: mise run build
 
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: service-template:latest
+          format: table
+          severity: HIGH,CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
+
       - name: Smoke test image
         run: |
           docker run -d --rm -p 8000:8000 --name smoke service-template:latest
