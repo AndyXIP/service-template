@@ -1,0 +1,27 @@
+# Placeholder deploy workflow - intentionally not wired up (see README's
+# "Suggested Future Directions"). Uncomment and adapt once this service has
+# a real deploy target, e.g.:
+#
+# name: Deploy
+#
+# on:
+#   push:
+#     branches: [main]
+#   workflow_dispatch:
+#
+# permissions:
+#   contents: read
+#   id-token: write  # needed for OIDC (e.g. AWS/GCP federated auth)
+#
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     needs: []  # e.g. gate on the CI workflow finishing
+#     steps:
+#       - uses: actions/checkout@v7.0.0
+#       - uses: ./.github/actions/mise-install
+#       - run: mise run build
+#       # then push the image to a registry and deploy it, e.g.:
+#       # - AWS: aws-actions/configure-aws-credentials + ecs/eks/apprunner deploy
+#       # - GCP: google-github-actions/auth + gcloud run deploy
+#       # - Fly.io / Render / Railway: their respective deploy actions
