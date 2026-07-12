@@ -1,5 +1,5 @@
 [project]
-name = "service-template"
+name = "api-service-template"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
